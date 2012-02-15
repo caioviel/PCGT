@@ -147,6 +147,7 @@ class SyntheticAnalyzer:
                     raise Exception('Invalid token <' + str(token) + '> found in __parse_item_list__: expected FECHA_PAREN or VIRGULA.')
                 
             elif token == FECHA_PAREN:
+                self.enum_itens.append((item, False, 0))
                 return
             else:
                 raise Exception('Invalid token found in __parse_item_list__: expected VIRGULA or NUMBER.')
@@ -214,6 +215,8 @@ class CodeGenerator:
         code += '\t};\n\n'
         
         code += 'public:\n'
+        code += '\t//Default constructor will use the first element of the enumeration for initializations\n'
+        code += '\t' + c_name + '();\n'
         code += '\t' + c_name + '(' + c_name + '::Type type);\n'
         code += '\t' + c_name + '(const ' + c_name + '& obj);\n'
         code += '\t' + c_name + '(const std::string& str);\n\n'
@@ -402,6 +405,12 @@ class CodeGenerator:
     def __generate_constructors__(self):
         c_name = self.class_name
         code = '\n'
+        
+        code += c_name + '::' + c_name + '() {\n'
+        code += '\tthis->type = types[0];\n'
+        code += '\tthis->str = strTypes[0];\n'
+        code += '}\n\n'
+        
         code += c_name + '::' + c_name + '(' + c_name + '::Type type) {\n'
         code += '\tthis->type = type;\n'
         code += '\tthis->str = typeToString(type);\n';
